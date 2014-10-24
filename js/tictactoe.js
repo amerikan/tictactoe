@@ -15,11 +15,15 @@ function TicTacToe(userName) {
 	/* Sets the position of choice for player */
 	this.setChoice = function (position) {
 
-		console.log(currentPlayerTurn + ': ' + position)
-
+		console.log(((currentPlayerTurn) ? 'Computer' : this.userName) + ': ' + position)
 
 		if (this.winner) {
 			console.log('A player has won already. Ignoring...');
+			return;
+		}
+
+		if (this.moveCount >= 9) {
+			this.winner = "Draw";
 			return;
 		}
 
@@ -33,9 +37,13 @@ function TicTacToe(userName) {
 		board[position - 1][0] = currentPlayerTurn;
 
 
+		console.log('=====================')
+		console.log(board[0][0] + '|' + board[1][0] + '|' + board[2][0])
+		console.log('-------------')
+		console.log(board[3][0] + '|' + board[4][0] + '|' + board[5][0])
+		console.log('-------------')
+		console.log(board[6][0] + '|' + board[7][0] + '|' + board[8][0])
 
-		console.log(board);
-		console.log('----');
 
 		// Check if player has won
 		if (this.isWinner() && this.moveCount > 4) {
@@ -119,53 +127,37 @@ function TicTacToe(userName) {
 					//console.log(position)
 
 					if (that.positionFilled(position) && that.getMark(position) === 0) {
-						console.log('not safe')
+						//console.log('not safe')
 
 						move = position + 1;
 
-
 						if (that.positionFilled(move)) {
 
-							console.log('already filled')
 
 							board.forEach(function (item, index) {
-
 
 								if (item[0] === null) {
 
 									move = index + 1;
 								}
-
-
-
-							});
-
-							 
+							});	 
 						}
-
-
-						console.log('computer move: ' + move);
-
-
-
-
 					} else {
 
+						//console.log('safe, no threat');
 
-							board.forEach(function (item, index) {
+						//TODO: instad of filling any empty position
+						// fill one that may  win
 
+						board.forEach(function (item, index) {
 
-								if (item[0] === null) {
+							if (item[0] === null) {
 
-									move = index + 1;
-								}
+								move = index + 1;
 
-
-
-							});
-
-							
-
+								return false;
+							}
+						});
 					}
 				}
 			});
@@ -183,11 +175,13 @@ var game = new TicTacToe('Erik');
 	147, 258, 369
 	159, 357
 */
-game.setChoice(1); 
+game.setChoice(8);
+game.setChoice(4);
 game.setChoice(6);
-game.setChoice(7); 
-game.setChoice(2); 
+game.setChoice(2);
+game.setChoice(1);
 
+console.log('*****************');
 console.log('Total moves: ' + game.moveCount);
 
 console.log('Winner: ' + game.winner);
