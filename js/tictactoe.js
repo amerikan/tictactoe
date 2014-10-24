@@ -1,59 +1,80 @@
 function TicTacToe(userName) {
 
-	this.userName = userName;
-	this.winner = null;
-	this.moveCount = 0;
+	this.userName = userName; // User's display name
+	this.winner = null; // The winner
+	this.moveCount = 0; // Track total game moves
 
 	var that = this;
 	var currentPlayerTurn = 0; //0: user 1: computer
+
+	// tic tac toe board
 	var board = [
-		[null, 2], [null, 7], [null, 6],
-		[null, 9], [null, 5], [null, 1],
-		[null, 4], [null, 3], [null, 8]
-	];
+			null, null, null,
+			null, null, null,
+			null, null, null
+		];
+
+	// All possible winning combinations
+	var winningSets = [
+			[0,1,2], [3,4,5], [6,7,8],  // left/right
+			[0,3,6], [1,4,7], [2,5,8],  // up/down
+			[0,4,8], [2,4,6] 			// diagonal
+		];
 
 	/* Sets the position of choice for player */
-	this.setChoice = function (position) {
+	this.setMark = function (position) {
 
-		console.log(((currentPlayerTurn) ? 'Computer' : this.userName) + ': ' + position)
-
+		// Already have a winner
 		if (this.winner) {
-			console.log('A player has won already. Ignoring...');
+			console.log(this.winner + ' has won already. Ignoring move...');
 			return;
 		}
 
+		// Game has exhausted possible moves, its a draw
 		if (this.moveCount >= 9) {
 			this.winner = "Draw";
 			return;
 		}
 
+		// Safety check to prevent overwriting position
 		if (this.positionFilled(position)) {
-			console.log('Position ' + position + ' has a mark already. Try different position');
+			console.log('Position ' + position + ' has a mark already. Try different position.');
 			return;
 		}
 
 		this.moveCount++;
 
-		board[position - 1][0] = currentPlayerTurn;
+		// Mark the specified position with the players code
+		board[position] = currentPlayerTurn;
 
+		//debug ui
+		function t(x) {
+			if (x === null) {
+				return ' ';
+			} else if (x === 0) {
+				return 'o';
 
-		console.log('=====================')
-		console.log(board[0][0] + '|' + board[1][0] + '|' + board[2][0])
-		console.log('-------------')
-		console.log(board[3][0] + '|' + board[4][0] + '|' + board[5][0])
-		console.log('-------------')
-		console.log(board[6][0] + '|' + board[7][0] + '|' + board[8][0])
+			} else if (x === 1) {
+				return 'x';
+			}
+		}
+		console.log(((currentPlayerTurn) ? 'Computer(x)' : this.userName + '(o)') + ' marks ' + position);
+		console.log(t(board[0]) + '|' + t(board[1]) + '|' + t(board[2]));
+		console.log('-----');
+		console.log(t(board[3]) + '|' + t(board[4]) + '|' + t(board[5]));
+		console.log('-----');
+		console.log(t(board[6]) + '|' + t(board[7]) + '|' + t(board[8]));
+		console.log('=====================');
 
-
-		// Check if player has won
-		if (this.isWinner() && this.moveCount > 4) {
+		// Check if player has won, can only have won if there has been more than 4 moves
+		if (this.moveCount > 4 && this.isWinner()) {
 			this.winner = (currentPlayerTurn) ? 'Computer' : this.userName;
 		} else {
 
 			// Toggle player turn
-			currentPlayerTurn = 1 - currentPlayerTurn
+			currentPlayerTurn = 1 - currentPlayerTurn;
 
-			// Make computer make a move
+			// Computer make a move
 			if (currentPlayerTurn === 1) {
 				computerMove(position);
 			}
@@ -63,107 +84,96 @@ function TicTacToe(userName) {
 	/* Determines if the current player has won */
 	this.isWinner = function () {
 
-		var currentPlayer = currentPlayerTurn;
-		var value = 0;
+		var winner = false;
 
-		board.forEach(function (position) {
+		winningSets.forEach(function (set) {
 
-			if(position[0] === currentPlayer) {
-
-				value = value + position[1];
-
-				if (value === 15) {
-					return;
-				}
+			if(board[set[0]] === currentPlayerTurn && board[set[1]] === currentPlayerTurn && board[set[2]] === currentPlayerTurn) {
+				winner = true;
 			}
 		});
 
-		return (value === 15);
+		return winner;
 	};
 
+	/* Determines if  a position is filled */
 	this.positionFilled = function (position) {
 
-		if (board[position - 1][0] === null) {
-			return false
+		if (board[position] === null) {
+			return false;
 		}
 
 		return true;
 	};
 
-	this.getMark = function (position) {
-
-		return board[position - 1][0];
+	/* Gets the positions value */
+	this.getPositionValue = function (position) {
+		return board[position][0];
 	};
 	
+	/* */
 	function computerMove(userLastPosition) {
 
-		var move = 5;//null;
-		var winningCombinations = [
-			[1,2,3], [4,5,6], [7,8,9], // up/down
-			[1,4,7], [2,5,8], [3,6,9], // left/right
-			[1,5,9], [3,5,7] // diagonal
-		];
-
+		var move = null;
 		var possibilities = [];
+		var dangerSets = [];
+		var winnableSets = [];
 
 		// Check with what position can user win
 		// set move value to it if such position exists
-		winningCombinations.forEach(function(combination, index) {
+		winningSets.forEach(function(combination, index) {
 			if (combination.indexOf(userLastPosition) !== -1) {
 				possibilities.push(index);
 			}
 		});
 
-		console.log(possibilities);
-
+		//
 		possibilities.forEach(function (set, index) {
-			//console.log(winningCombinations[set])
 			
-			winningCombinations[set].forEach(function (position) {
+			//
+			winningSets[set].forEach(function (position) {
 
-				//console.log(position)
-
+				//
 				if (position !== userLastPosition) {
-					//console.log(position)
-
-					if (that.positionFilled(position) && that.getMark(position) === 0) {
-						//console.log('not safe')
-
-						move = position + 1;
-
-						if (that.positionFilled(move)) {
-
-
-							board.forEach(function (item, index) {
-
-								if (item[0] === null) {
-
-									move = index + 1;
-								}
-							});	 
-						}
-					} else {
-
-						//console.log('safe, no threat');
-
-						//TODO: instad of filling any empty position
-						// fill one that may  win
-
-						board.forEach(function (item, index) {
-
-							if (item[0] === null) {
-
-								move = index + 1;
-
-								return false;
-							}
-						});
+					if (that.positionFilled(position) && that.getPositionValue(position) === 0) {
+						dangerSets.push(set);
 					}
 				}
 			});
 		});
 
-		that.setChoice(move);
+		// Strategy
+		if (dangerSets.length > 0) {
+
+			// There is a threat, make a defensive move
+			
+			//
+			winningSets[dangerSets[0]].forEach(function (position) {
+				if (! that.positionFilled(position) && !move) {
+					move = position;
+				}
+			});
+
+		} else {
+
+			// There's no threat, make an offensive move
+
+			//
+			winningSets.forEach(function (set, index) {
+				if (set[0] !== 0 && set[1] !== 0 && set[2] !== 0) {
+					winnableSets.push(index);
+				}
+			});
+
+			//
+			winnableSets.forEach(function (position) {
+				if (!that.positionFilled(position)) {
+					move = position;
+				}
+			});
+		}
+
+		that.setMark(move);
 	}
 }
 
@@ -175,13 +185,13 @@ var game = new TicTacToe('Erik');
 	147, 258, 369
 	159, 357
 */
-game.setChoice(8);
-game.setChoice(4);
-game.setChoice(6);
-game.setChoice(2);
-game.setChoice(1);
+game.setMark(5);
+game.setMark(8);
+game.setMark(1);
+game.setMark(0);
+
 
 console.log('*****************');
 console.log('Total moves: ' + game.moveCount);
-
 console.log('Winner: ' + game.winner);
+console.log('*****************');
