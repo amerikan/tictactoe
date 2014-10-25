@@ -86,6 +86,7 @@ function TicTacToe(userName) {
 
 		var winner = false;
 
+
 		winningSets.forEach(function (set) {
 
 			if(board[set[0]] === currentPlayerTurn && board[set[1]] === currentPlayerTurn && board[set[2]] === currentPlayerTurn) {
@@ -114,64 +115,41 @@ function TicTacToe(userName) {
 	/* */
 	function computerMove(userLastPosition) {
 
-		var move = null;
-		var possibilities = [];
-		var dangerSets = [];
-		var winnableSets = [];
+		var move = board.indexOf(null); // default move the the first empty position
 
-		// Check with what position can user win
-		// set move value to it if such position exists
-		winningSets.forEach(function(combination, index) {
-			if (combination.indexOf(userLastPosition) !== -1) {
-				possibilities.push(index);
-			}
-		});
+		// Determine if computer needs to defend
 
-		//
-		possibilities.forEach(function (set, index) {
-			
-			//
-			winningSets[set].forEach(function (position) {
+		for(var i = 0; i < winningSets.length; i++) {
 
-				//
-				if (position !== userLastPosition) {
-					if (that.positionFilled(position) && that.getPositionValue(position) === 0) {
-						dangerSets.push(set);
+			//console.log(winningSets[i], userLastPosition);
+
+			if (winningSets[i].indexOf(userLastPosition) !== -1) {
+
+				console.log('Combination: ' + winningSets[i]);
+		
+
+				for(var j = 0; j < winningSets[i].length; j++) {
+
+					if (winningSets[i][j] === userLastPosition) {
+
+						//console.log(winningSets[i][j]);
+
+						console.log(board[winningSets[i][j]]);
+
+
 					}
+
 				}
-			});
-		});
 
-		// Strategy
-		if (dangerSets.length > 0) {
 
-			// There is a threat, make a defensive move
-			
-			//
-			winningSets[dangerSets[0]].forEach(function (position) {
-				if (! that.positionFilled(position) && !move) {
-					move = position;
-				}
-			});
-
-		} else {
-
-			// There's no threat, make an offensive move
-
-			//
-			winningSets.forEach(function (set, index) {
-				if (set[0] !== 0 && set[1] !== 0 && set[2] !== 0) {
-					winnableSets.push(index);
-				}
-			});
-
-			//
-			winnableSets.forEach(function (position) {
-				if (!that.positionFilled(position)) {
-					move = position;
-				}
-			});
+				//console.log(board[winningSets[i][0]], board[winningSets[i][1]], board[winningSets[i][2]])
+				
+				
+			}
 		}
+
+		// Otherwise attack
+		
 
 		that.setMark(move);
 	}
@@ -185,10 +163,9 @@ var game = new TicTacToe('Erik');
 	147, 258, 369
 	159, 357
 */
-game.setMark(5);
-game.setMark(8);
+game.setMark(2);
 game.setMark(1);
-game.setMark(0);
+game.setMark(5);
 
 
 console.log('*****************');
