@@ -1,6 +1,5 @@
-function TicTacToe(userName, firstPlayer) {
+function TicTacToe(firstPlayer) {
 
-	this.userName = userName; // User's display name
 	this.winner = null; // The winner
 	this.moveCount = 0; // Track total game moves
 
@@ -43,7 +42,7 @@ function TicTacToe(userName, firstPlayer) {
 
 		// Game has exhausted possible moves, it's a draw
 		if (this.moveCount >= 9) {
-			this.winner = "Draw";
+			this.winner = -1;
 			return;
 		}
 
@@ -58,7 +57,7 @@ function TicTacToe(userName, firstPlayer) {
 
 		// Check if player has won, can only have won if there has been more than 4 moves
 		if (this.moveCount > 4 && this.isWinner()) {
-			this.winner = (currentPlayerTurn) ? 'Computer' : this.userName;
+			this.winner = (currentPlayerTurn) ? 1 : 0; //computer : user
 		} else {
 
 			// Toggle player turn

@@ -23,7 +23,7 @@
 		
 		<script type="text/javascript">
 
-			var game = new TicTacToe('Erik', 0);
+			var game = new TicTacToe(0);
 
 			$('#board .section').on('click', function () {
 
@@ -49,14 +49,18 @@
 					$('#board .section:nth-child(' + (index + 1) + ')').html(symbol);
 				});
 
-				// Check if there's a winner
-				if (game.winner) {
+				console.log(board);
 
-					if (game.winner === "Draw") {
-						alert('Draw!');
-					} else {
-						alert(game.winner + ' has won!');
-					}
+				// Check if there's a winner
+				switch(game.winner) {
+					case 0:  alert('You have won!');
+							 break;
+					case 1:  alert('You have lost!');
+							 break;
+					case -1: alert("It's a draw!"); 
+							 break;
+					default: 
+						break;
 				}
 			});
 		</script>
