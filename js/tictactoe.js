@@ -99,6 +99,11 @@ function TicTacToe(userName, firstPlayer) {
 	this.getPositionValue = function (position) {
 		return board[position];
 	};
+
+	/* Returns the board array */
+	this.getBoard = function () {
+		return board;
+	};
 	
 	/* Determine best position move for computer and mark it */
 	function computerMove(userLastPosition) {

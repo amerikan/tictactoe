@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>Tic Tac Toe</title>
+		<link rel="stylesheet" type="text/css" href="css/tictactoe.css">
+		<script type="text/javascript" src="js/tictactoe.js"></script>
+	</head>
+	<body>
+		
+		<script type="text/javascript">
+
+			var game = new TicTacToe('Erik', 0);
+
+			game.setMark(0);
+			console.log(game.getBoard());
+
+			console.log(game.winner);
+
+		</script>
+	</body>
+</html>
