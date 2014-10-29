@@ -49,7 +49,10 @@ function TicTacToe(firstPlayer) {
 		// Update winning sets
 		for(var i = 0; i < winningSets.length; i++) {
 			// the set becomes unwinnable if it contains both a marking from computer and user
-			if (winningSets[i].indexOf(0) !== -1 && winningSets[i].indexOf(1) !== -1) {
+
+			var line = winningSets[i].map(that.getPositionValue);
+
+			if (line.indexOf(0) !== -1 && line.indexOf(1) !== -1) {
 				winningSets.splice(i, 1);
 				break;
 			}
