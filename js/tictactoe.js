@@ -121,7 +121,7 @@ function TicTacToe(userName, firstPlayer) {
 				position = 4;
 			} 
 			// the user chose the center position, mark the corner position
-			else if (board[0] === 4) {
+			else if (board[4] === 0) {
 				position = 0;
 			}
 
