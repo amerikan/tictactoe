@@ -2,3 +2,16 @@
 	margin: 0;
 	padding: 0;
 }
+
+
+#board {
+	width: 606px;
+}
+
+#board .section {
+	border: 1px solid #ccc;
+	float: left;
+	font-size: 100px;
+	height: 200px;
+	width: 200px;
+}
