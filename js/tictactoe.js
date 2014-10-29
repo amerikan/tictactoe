@@ -113,11 +113,11 @@ function TicTacToe(userName, firstPlayer) {
 		var positionValues;
 		var emptyPosition;
 
-		// 2nd move
+		// computer is 2nd to move
 		if (that.moveCount === 1) {
 
-			// the user chose a corner, mark the center position
-			if (board[0] === 0 || board[2] === 0 || board[6] === 0 || board[8] === 0) {
+			// the center position is open or the user chose a corner, mark the center position
+			 if (board[4] === null || board[0] === 0 || board[2] === 0 || board[6] === 0 || board[8] === 0) {
 				position = 4;
 			} 
 			// the user chose the center position, mark the corner position
