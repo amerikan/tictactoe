@@ -24,13 +24,13 @@ function TicTacToe(firstPlayer) {
 	/* Sets the position of choice for player */
 	this.setMark = function (position) {
 
-		this.moveCount++;
-
 		// Safety check to prevent overwriting position
 		if (this.positionFilled(position)) {
 			console.log('Error: Position ' + position + ' has a mark already. Mark a different position.');
 			return;
 		}
+
+		this.moveCount++;
 
 		// Already have a winner
 		if (this.winner === 1 || this.winner === 0) {
