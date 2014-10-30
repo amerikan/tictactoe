@@ -2,6 +2,7 @@ function TicTacToe(firstPlayer) {
 
 	this.winner = null; // The winner
 	this.moveCount = 0; // Track total game moves
+	this.winningSet = [];
 
 	var that = this;
 	var currentPlayerTurn = firstPlayer || 0; //0: user 1: computer
@@ -23,17 +24,20 @@ function TicTacToe(firstPlayer) {
 	/* Sets the position of choice for player */
 	this.setMark = function (position) {
 
-		this.moveCount++;
-
-		// Already have a winner
-		if (this.winner) {
-			console.log(this.winner + ' has won already. Ignoring move...');
+		// Safety check to prevent overwriting position
+		if (this.positionFilled(position)) {
+			console.log('Error: Position ' + position + ' has a mark already. Mark a different position.');
 			return;
 		}
 
-		// Safety check to prevent overwriting position
-		if (this.positionFilled(position)) {
-			console.log('Position ' + position + ' has a mark already. Try different position.');
+		this.moveCount++;
+
+		// Already have a winner
+		if (this.winner === 1 || this.winner === 0) {
+			console.log('Error: Game is alreay over, ' + this.winner + ' won. Ignoring move...');
+			return;
+		} else if (this.winner === -1) {
+			console.log('Error: Game is already over, it was a draw. Ignoring move...');
 			return;
 		}
 
@@ -80,6 +84,7 @@ function TicTacToe(firstPlayer) {
 
 		winningSets.forEach(function (set) {
 			if (board[set[0]] === currentPlayerTurn && board[set[1]] === currentPlayerTurn && board[set[2]] === currentPlayerTurn) {
+				that.winningSet = set;
 				winner = true;
 			}
 		});
@@ -111,36 +116,39 @@ function TicTacToe(firstPlayer) {
 	function computerMove(userLastPosition) {
 
 		var position = board.indexOf(null); // default move the the first empty position
+
 		var winningMove = false;
-		var positionValues;
-		var emptyPosition;
 
 		// computer is 2nd to move
 		if (that.moveCount === 1) {
 
-			// the center position is open or the user chose a corner, mark the center position
-			 if (board[4] === null || board[0] === 0 || board[2] === 0 || board[6] === 0 || board[8] === 0) {
-				position = 4;
-			} 
-			// the user chose the center position, mark the corner position
-			else if (board[4] === 0) {
+			// Always go for opposite corner position
+			position = 4;
+			/*if (board[0] === 0) {
+				position = 6;
+			} else if (board[2] === 0) {
+				position = 8;
+			} else if (board[6] === 0) {
 				position = 0;
-			}
+			} else if (board[8] === 0) {
+				position = 2;
+			}*/
 
 		} else { 
 
 			// Can computer win it already?
-			if (that.moveCount > 2) {
-				for (var i = 0; i < winningSets.length; i++) {
+			if (that.moveCount >= 4) {
+
+				for (var i = 0, line, empty; i < winningSets.length; i++) {
 
 					// map the combinations with the actual markings
-					positionValues = winningSets[i].map(that.getPositionValue);
+					line = winningSets[i].map(that.getPositionValue);
 
 					// Set must have 2 computer markings and one empty to be a winning move
-					if (_countOccurances(positionValues, 1) === 2 && positionValues.indexOf(null) !== -1) {
+					if (_countOccurances(line, 1) === 2 && line.indexOf(null) !== -1) {
 
-						emptyPosition = positionValues.indexOf(null);
-						position = winningSets[i][emptyPosition];
+						empty = line.indexOf(null);
+						position = winningSets[i][empty];
 
 						winningMove = true;
 						
@@ -180,19 +188,40 @@ function TicTacToe(firstPlayer) {
 				} 
 				// Computer can make an offensive move
 				else {
-			
-					for(var k = 0; k < winningSets.length; k++) {
 
-						positionValues = winningSets[k].map(that.getPositionValue);
+					var cornerMove = false;
 
-						if (_countOccurances((winningSets[k].map(that.getPositionValue)), 1) === 1) {
-							
-							emptyPosition = positionValues.indexOf(null);
-							position = winningSets[k][emptyPosition];
-							
-							break;
-						}
-					}	
+					// Try to always go for a corner position if open
+					if (board[0] === null) {
+						position = 0;
+						cornerMove = true;
+					} else if (board[2] === null) {
+						position = 2;
+						cornerMove = true;
+					} else if (board[6] === null) {
+						position = 6;
+						cornerMove = true;
+					} else if (board[8] === null) {
+						position = 8;
+						cornerMove = true;
+					}
+
+					if (! cornerMove) {
+						
+						// Place mark in a line that already has one computer mark
+						for(var k = 0, line, empty; k < winningSets.length; k++) {
+
+							line = winningSets[k].map(that.getPositionValue);
+
+							if (_countOccurances(line, 1) === 1 && _countOccurances(line, null) === 1) {
+								
+								empty = line.indexOf(null);
+								position = winningSets[k][empty];
+
+								break;
+							}
+						}	
+					}
 				}
 			}
 		}
@@ -218,8 +247,14 @@ function TicTacToe(firstPlayer) {
 	function init() {
 		// Computer goes first
 		if (currentPlayerTurn === 1) {
+
+			var safePositions = [0, 2, 6, 8];
+
+			// Randomly choose a position to make it less predictable
+			var position = safePositions[Math.floor(Math.random() * safePositions.length)];
+
 			// Mark the center position
-			that.setMark(4);
+			that.setMark(position);
 		}
 	}
 

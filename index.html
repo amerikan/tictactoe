@@ -3,27 +3,47 @@
 <html>
 	<head>
 		<title>Tic Tac Toe</title>
+		<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="css/tictactoe.css">
 		<script type="text/javascript" src="js/tictactoe.js"></script>
 		<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
 	</head>
 	<body>
 
+		<div id="result-modal" style="display:none;">
+			<h1>You've <span id="result"></span>!</h1>
+			<button id="new-game">Play Again</button>
+		</div>
+
 		<div id="board">
-			<div class="section"></div>
-			<div class="section"></div>
-			<div class="section"></div>
-			<div class="section"></div>
-			<div class="section"></div>
-			<div class="section"></div>
-			<div class="section"></div>
-			<div class="section"></div>
-			<div class="section"></div>
+			<div class="section tl"></div>
+			<div class="section tc"></div>
+			<div class="section tr"></div>
+			<div class="section ml"></div>
+			<div class="section mc"></div>
+			<div class="section mr"></div>
+			<div class="section bl"></div>
+			<div class="section bc"></div>
+			<div class="section br"></div>
 		</div>
 		
 		<script type="text/javascript">
 
-			var game = new TicTacToe(0);
+			var turn = 0; // user will go first
+			var game = new TicTacToe(turn);
+			
+			updateUI();
+
+			$('#new-game').on('click', function () {
+
+				// toggle turn
+				turn = 1 - turn;
+				game = new TicTacToe(turn);
+				updateUI();
+
+				$('#board .section').removeClass('win-cell-color loss-cell-color muted-cell');
+				$('#result-modal').hide();	
+			});
 
 			$('#board .section').on('click', function () {
 
@@ -32,37 +52,60 @@
 
 				// Set mark
 				game.setMark(position);
-				
-				var board = game.getBoard();
 
 				// Update board
+				updateUI();
+
+				// Check if there's a winner
+				switch(game.winner) {
+					case 0:
+						$('#board .section').addClass('muted-cell');
+						$('#board .section:nth-child(' + (game.winningSet[0] + 1) + ')').addClass('win-cell-color');
+						$('#board .section:nth-child(' + (game.winningSet[1] + 1) + ')').addClass('win-cell-color');
+						$('#board .section:nth-child(' + (game.winningSet[2] + 1) + ')').addClass('win-cell-color');
+						$('#result').text('won');
+						$('#result-modal').show();	
+						break;
+
+					case 1:  
+						$('#board .section').addClass('muted-cell');
+						$('#board .section:nth-child(' + (game.winningSet[0] + 1) + ')').addClass('loss-cell-color');
+						$('#board .section:nth-child(' + (game.winningSet[1] + 1) + ')').addClass('loss-cell-color');
+						$('#board .section:nth-child(' + (game.winningSet[2] + 1) + ')').addClass('loss-cell-color');
+						$('#result').text('lost');
+						$('#result-modal').show();
+						break;
+
+					case -1: 
+						$('#board .section').addClass('muted-cell');
+						$('#result').text('tied');
+						$('#result-modal').show(); 
+						break;
+
+					default: 
+						break;
+				}
+
+			});
+
+			// Update the Board UI
+			function updateUI() {
+
+				var board = game.getBoard();
+
 				board.forEach(function (pos, index) {
 
 					var symbol = ' ';
 
 					if (pos === 1) {
-						symbol = 'X';
+						symbol = '<i class="fa fa-times"></i>';
 					} else if (pos === 0) {
-						symbol = 'O';
+						symbol = '<i class="fa fa-circle-o"></i>';
 					}
 
 					$('#board .section:nth-child(' + (index + 1) + ')').html(symbol);
 				});
-
-				console.log(board);
-
-				// Check if there's a winner
-				switch(game.winner) {
-					case 0:  alert('You have won!');
-							 break;
-					case 1:  alert('You have lost!');
-							 break;
-					case -1: alert("It's a draw!"); 
-							 break;
-					default: 
-						break;
-				}
-			});
+			}
 		</script>
 	</body>
 </html>
