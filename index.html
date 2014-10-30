@@ -36,8 +36,7 @@
 
 			$('#new-game').on('click', function () {
 
-				// toggle turn
-				turn = 1 - turn;
+				turn = 1 - turn; // toggle turn
 				game = new TicTacToe(turn);
 				updateUI();
 
@@ -85,7 +84,6 @@
 					default: 
 						break;
 				}
-
 			});
 
 			// Update the Board UI

@@ -24,13 +24,13 @@ function TicTacToe(firstPlayer) {
 	/* Sets the position of choice for player */
 	this.setMark = function (position) {
 
+		this.moveCount++;
+
 		// Safety check to prevent overwriting position
 		if (this.positionFilled(position)) {
 			console.log('Error: Position ' + position + ' has a mark already. Mark a different position.');
 			return;
 		}
-
-		this.moveCount++;
 
 		// Already have a winner
 		if (this.winner === 1 || this.winner === 0) {
@@ -44,18 +44,12 @@ function TicTacToe(firstPlayer) {
 		// Mark the specified position with the players code
 		board[position] = currentPlayerTurn;
 
-		// Game has exhausted possible moves, it's a draw
-		if (this.moveCount >= 9) {
-			this.winner = -1;
-			return;
-		}
-
 		// Update winning sets
 		for(var i = 0; i < winningSets.length; i++) {
-			// the set becomes unwinnable if it contains both a marking from computer and user
 
 			var line = winningSets[i].map(that.getPositionValue);
 
+			// the set becomes unwinnable if it contains both a marking from computer and user
 			if (line.indexOf(0) !== -1 && line.indexOf(1) !== -1) {
 				winningSets.splice(i, 1);
 				break;
@@ -65,6 +59,10 @@ function TicTacToe(firstPlayer) {
 		// Check if player has won, can only have won if there has been more than 4 moves
 		if (this.moveCount > 4 && this.isWinner()) {
 			this.winner = (currentPlayerTurn) ? 1 : 0; //computer : user
+		} 
+		// if there has been 9 moves (max) and no winner then we know it's a tie
+		else if (this.moveCount >= 9) {
+			this.winner = -1;
 		} else {
 
 			// Toggle player turn
@@ -116,116 +114,104 @@ function TicTacToe(firstPlayer) {
 	function computerMove(userLastPosition) {
 
 		var position = board.indexOf(null); // default move the the first empty position
-
 		var winningMove = false;
 
-		// computer is 2nd to move
+		// Computer has second turn, place in center position
 		if (that.moveCount === 1) {
-
-			// Always go for opposite corner position
-			position = 4;
-			/*if (board[0] === 0) {
-				position = 6;
-			} else if (board[2] === 0) {
-				position = 8;
-			} else if (board[6] === 0) {
+			
+			if (board[4] === null) {
+				position = 4;
+			} else {
 				position = 0;
-			} else if (board[8] === 0) {
-				position = 2;
-			}*/
+			}
+		} 
+		// computer has 4th turn
+		else if (that.moveCount === 3) {
 
-		} else { 
+			// Diagonal corners are occupied by user, computer should block 
+			if ((board[0] === 0 && board[8] === 0) || (board[2] === 0 && board[6] === 0)) {
+				position = 1;
+			} else {
 
-			// Can computer win it already?
-			if (that.moveCount >= 4) {
+				if (board[0] === null) {
+					position = 0;
+				} else if (board[2] === null) {
+					position = 2;
+				} else if (board[6] === null) {
+					position = 6;
+				} else if (board[8] === null) {
+					position = 8;
+				}
+			}
+		} 
+		// after the 4th turn there's more things to check
+		else if (that.moveCount >= 4) {
 
-				for (var i = 0, line, empty; i < winningSets.length; i++) {
+			for (var i = 0, line, empty; i < winningSets.length; i++) {
 
-					// map the combinations with the actual markings
-					line = winningSets[i].map(that.getPositionValue);
+				// map the combinations with the actual markings
+				line = winningSets[i].map(that.getPositionValue);
 
-					// Set must have 2 computer markings and one empty to be a winning move
-					if (_countOccurances(line, 1) === 2 && line.indexOf(null) !== -1) {
+				// Set must have 2 computer markings and one empty to be a winning move
+				if (_countOccurances(line, 1) === 2 && line.indexOf(null) !== -1) {
 
-						empty = line.indexOf(null);
-						position = winningSets[i][empty];
+					empty = line.indexOf(null);
+					position = winningSets[i][empty];
+					winningMove = true;
+					
+					break;
+				}
+			}
+		}
 
-						winningMove = true;
+		// When there's no winning move, check if user can win on next move (threat)
+		if (! winningMove) {
+
+			// Find all sets where computer can lose
+			var threats = winningSets.filter(function (set) {
+				if (set.indexOf(userLastPosition) !== -1) {
+
+					var positionValues = set.map(that.getPositionValue);
+
+					// A threat when computer has no marking in set and user has two markings in set
+					if (positionValues.indexOf(1) === -1 && _countOccurances(positionValues, 0) === 2) {
+						return true;
+					} 
+				}
+
+				return false;
+			});
+
+			// Computer must make a defensive move
+			if (threats.length > 0) {
+				for (var j = 0; j < threats[0].length; j++) {
+					if(board[threats[0][j]] === null) {
 						
+						position = threats[0][j];
+						
+						break;
+					}
+				}		
+			} 
+			// Computer can make an offensive move
+			else {
+
+				// Place mark in a line that already has one computer mark
+				for(var k = 0, line, empty; k < winningSets.length; k++) {
+
+					line = winningSets[k].map(that.getPositionValue);
+
+					if (_countOccurances(line, 1) === 1 && _countOccurances(line, null) === 1) {
+						
+						empty = line.indexOf(null);
+						position = winningSets[k][empty];
+
 						break;
 					}
 				}
 			}
-
-			// When there's no winning move, check if user can win on next move (threat)
-			if (! winningMove) {
-
-				// Find all sets where computer can lose
-				var threats = winningSets.filter(function (set) {
-					if (set.indexOf(userLastPosition) !== -1) {
-
-						var positionValues = set.map(that.getPositionValue);
-
-						// A threat when computer has no marking in set and user has two markings in set
-						if (positionValues.indexOf(1) === -1 && _countOccurances(positionValues, 0) === 2) {
-							return true;
-						} 
-					}
-
-					return false;
-				});
-
-				// Computer must make a defensive move
-				if (threats.length > 0) {
-					for (var j = 0; j < threats[0].length; j++) {
-						if(board[threats[0][j]] === null) {
-							
-							position = threats[0][j];
-							
-							break;
-						}
-					}		
-				} 
-				// Computer can make an offensive move
-				else {
-
-					var cornerMove = false;
-
-					// Try to always go for a corner position if open
-					if (board[0] === null) {
-						position = 0;
-						cornerMove = true;
-					} else if (board[2] === null) {
-						position = 2;
-						cornerMove = true;
-					} else if (board[6] === null) {
-						position = 6;
-						cornerMove = true;
-					} else if (board[8] === null) {
-						position = 8;
-						cornerMove = true;
-					}
-
-					if (! cornerMove) {
-						
-						// Place mark in a line that already has one computer mark
-						for(var k = 0, line, empty; k < winningSets.length; k++) {
-
-							line = winningSets[k].map(that.getPositionValue);
-
-							if (_countOccurances(line, 1) === 1 && _countOccurances(line, null) === 1) {
-								
-								empty = line.indexOf(null);
-								position = winningSets[k][empty];
-
-								break;
-							}
-						}	
-					}
-				}
-			}
 		}
-		
+
 		// Set the mark in best position
 		that.setMark(position);
 	}
@@ -245,12 +231,12 @@ function TicTacToe(firstPlayer) {
 	}
 
 	function init() {
-		// Computer goes first
+		// Computer is going first
 		if (currentPlayerTurn === 1) {
 
-			var safePositions = [0, 2, 6, 8];
+			var safePositions = [0, 2, 6, 8]; // corner positions
 
-			// Randomly choose a position to make it less predictable
+			// Randomly choose one of the corner positions to make it less predictable
 			var position = safePositions[Math.floor(Math.random() * safePositions.length)];
 
 			// Mark the center position
