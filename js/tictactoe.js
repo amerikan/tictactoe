@@ -78,16 +78,19 @@ function TicTacToe(firstPlayer) {
 	/* Determines if the current player has won */
 	this.isWinner = function () {
 
-		var winner = false;
+		var set;
 
-		winningSets.forEach(function (set) {
+		for (var i = 0, len = winningSets.length; i < len; i++) {
+
+			set = winningSets[i];
+
 			if (board[set[0]] === currentPlayerTurn && board[set[1]] === currentPlayerTurn && board[set[2]] === currentPlayerTurn) {
 				that.winningSet = set;
-				winner = true;
+				return true;
 			}
-		});
+		}
 
-		return winner;
+		return false;
 	};
 
 	/* Determines if  a position is filled */
