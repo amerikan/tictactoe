@@ -16,8 +16,8 @@ function TicTacToe(firstPlayer) {
 
 	// All possible winning combinations
 	var winningSets = [
-			[0,1,2], [3,4,5], [6,7,8],	// left/right
-			[0,3,6], [1,4,7], [2,5,8],	// up/down
+			[0,1,2], [3,4,5], [6,7,8],	// horizontal
+			[0,3,6], [1,4,7], [2,5,8],	// vertical
 			[0,4,8], [2,4,6]			// diagonal
 		];
 
@@ -32,24 +32,26 @@ function TicTacToe(firstPlayer) {
 
 		this.moveCount++;
 
-		// Already have a winner
+		// In winner was previously declared
 		if (this.winner === 1 || this.winner === 0) {
 			console.log('Error: Game is alreay over, ' + this.winner + ' won. Ignoring move...');
 			return;
-		} else if (this.winner === -1) {
+		} 
+		// A draw was previously declared
+		else if (this.winner === -1) {
 			console.log('Error: Game is already over, it was a draw. Ignoring move...');
 			return;
 		}
 
-		// Mark the specified position with the players code
+		// Mark the specified position with the players symbol
 		board[position] = currentPlayerTurn;
 
-		// Update winning sets
+		// Update winning line sets
 		for(var i = 0; i < winningSets.length; i++) {
 
 			var line = winningSets[i].map(that.getPositionValue);
 
-			// the set becomes unwinnable if it contains both a marking from computer and user
+			// the line set becomes unwinnable if it contains both a marking from computer and user
 			if (line.indexOf(0) !== -1 && line.indexOf(1) !== -1) {
 				winningSets.splice(i, 1);
 				break;
@@ -237,12 +239,11 @@ function TicTacToe(firstPlayer) {
 		// Computer is going first
 		if (currentPlayerTurn === 1) {
 
-			var safePositions = [0, 2, 6, 8]; // corner positions
+			var safePositions = [0, 2, 6, 8]; // corner positions, give better odds at winning
 
-			// Randomly choose one of the corner positions to make it less predictable
+			// Randomly choose one of the corner positions to make it less repetative game sequence 
 			var position = safePositions[Math.floor(Math.random() * safePositions.length)];
 
-			// Mark the center position
 			that.setMark(position);
 		}
 	}
