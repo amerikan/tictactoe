@@ -14,10 +14,6 @@ function TicTacToe(firstPlayer) {
 			null, null, null
 		];
 
-	var centerSpot = 4;
-	var cornerSpot = [0, 2, 6, 8];
-	var edgeSpot =   [1, 3, 5, 7];
-
 	// All possible winning combinations
 	var winningSets = [
 			[0,1,2], [3,4,5], [6,7,8],	// horizontal
@@ -52,7 +48,6 @@ function TicTacToe(firstPlayer) {
 
 		// Update winning line sets
 		for(var i = 0; i < winningSets.length; i++) {
-
 			var line = winningSets[i].map(that.getPositionValue);
 
 			// the line set becomes unwinnable if it contains both a marking from computer and user
@@ -70,25 +65,20 @@ function TicTacToe(firstPlayer) {
 		else if (this.moveCount >= 9) {
 			this.winner = -1;
 		} else {
-
 			// Toggle player turn
 			currentPlayerTurn = 1 - currentPlayerTurn;
 
 			// Computer make a move
 			if (currentPlayerTurn === 1) {
-				computerMove();
+				that.setMark(getBestPosition());
 			}
 		}
 	};
 
 	/* Determines if the current player has won */
 	this.isWinner = function () {
-
-		var set;
-
 		for (var i = 0, len = winningSets.length; i < len; i++) {
-
-			set = winningSets[i];
+			var set = winningSets[i];
 
 			if (board[set[0]] === currentPlayerTurn && board[set[1]] === currentPlayerTurn && board[set[2]] === currentPlayerTurn) {
 				that.winningSet = set;
@@ -99,14 +89,9 @@ function TicTacToe(firstPlayer) {
 		return false;
 	};
 
-	/* Determines if  a position is filled */
+	/* Determines if a position is filled */
 	this.positionFilled = function (position) {
-
-		if (board[position] === null) {
-			return false;
-		}
-
-		return true;
+		return (board[position] !== null);
 	};
 
 	/* Gets the positions value */
@@ -119,144 +104,131 @@ function TicTacToe(firstPlayer) {
 		return board;
 	};
 	
-	/* Determine best position move for computer and mark it */
-	function computerMove() {
-		var position = bestPosition();
-		that.setMark(position);
-	}
-
-	function bestPosition () {
-
+	/* Determine best position move for computer */
+	function getBestPosition () {
 		var position = board.indexOf(null);
 
 		// Check for imminent win
 		for (var i = 0, len = winningSets.length; i < len; i++) {
-
 			var lineValues = winningSets[i].map(that.getPositionValue);
 
 			// Line has 2 computer symbols and one open for the win
 			if (_countOccurances(lineValues, 1) === 2 && _countOccurances(lineValues, null) === 1) {
-
 				var emptySpot = lineValues.indexOf(null);
+
 				return winningSets[i][emptySpot]; // Winning spot
 			}
 		}
 
 		// Check for imminent loss
-		for (var i = 0, len = winningSets.length; i < len; i++) {
-
+		for (i = 0, len = winningSets.length; i < len; i++) {
 			var lineValues = winningSets[i].map(that.getPositionValue);
 
 			// Line has 2 user symbols and one open for the win
 			if (_countOccurances(lineValues, 0) === 2 && _countOccurances(lineValues, null) === 1) {
-
 				var emptySpot = lineValues.indexOf(null);
+
 				return winningSets[i][emptySpot]; // losing spot
 			}
 		}
 
-		// User was first player
-		if (firstPlayer === 0) {
-
-			// Computer first turn
-			if (that.moveCount === 1) {
-				// User placed it in center
-				if (board[centerSpot] === 0) {
-					return cornerSpot[Math.floor(Math.random() * cornerSpot.length)]; // place it on random corner
-				} 
-
-				// User placed it in corner
-				else if (board[0] === 0 || board[2] === 0 || board[6] === 0 || board[8] === 0) {
-					return centerSpot; // place it on center
-				} 
-				// User placed it in edge
-				else {
-					// Choose one of the opposite corners 
-					if (board[1] === 0) {
-						return 8;
-					} else if (board[3] === 0) {
-						return 8;
-					} else if (board[5] === 0) {
-						return 0;
-					} else if (board[7] === 0) {
-						return 0;
-					}
-				} 
-			} 
+		// if center is blank, mark it
+		if (board[4] === null) {
+			return 4;
 		}
-		// Computer was first player
-		else {
 
-			// Computer has 3rd turn
-			if (that.moveCount === 2) {
+		// Check where user can win in two sets
+		var openSpots = [];
+		for (i = 0, len = winningSets.length; i < len; i++) {
+			var lineValues = winningSets[i].map(that.getPositionValue);
 
-				// User place their first mark in center
-				if (board[centerSpot] === 0) {
-					// Choose one of the opposite corners, where computer already has a marking
-					if (board[0] === 1) {
-						return 8;
-					} else if (board[2] === 1) {
-						return 6;
-					} else if (board[6] === 1) {
-						return 2;
-					} else if (board[8] === 1) {
-						return 0;
-					}
+			if (_countOccurances(lineValues, 0) === 1 && _countOccurances(lineValues, null) === 2) {
+
+				if (lineValues[0] === null) {
+					openSpots.push(winningSets[i][0]);
 				}
 
-				// Computer placed mark on a corner on first move
-				if (board[0] === 1 || board[8] === 1) {
-					// Place next marking in same line, wherever it's open
-					if (board[2] === null) {
-						return 2;
-					} else if (board[6] === null) {
-						return 6;
-					}
-				} else if (board[2] === 1 || board[6] === 1) {
-					// Place next marking in same line, wherever it's open
-					if (board[0] === null) {
-						return 0;
-					} else if (board[8] === null) {
-						return 8;
-					}
-				} 
-			} 
-			// Computer has 5th turn
-			else if (that.moveCount === 4) {
+				if (lineValues[1] === null) {
+					openSpots.push(winningSets[i][1]);
+				}
 
-				// One of the edges was set by user, choose one of the opposite corners for computer
-				if (board[1] === 0 && board[8] === null) {
-					return 8;
-				} else if (board[1] === 0 && board[6] === null) {
-					return 6;
-				} else if (board[3] === 0 && board[2] === null) {
-					return 2;
-				} else if (board[3] === 0 && board[8] === null) {
-					return 8;
-				} else if (board[5] === 0 && board[0] === null) {
-					return 0;
-				} else if (board[5] === 0 && board[6] === null) {
-					return 6;
-				} else if (board[7] === 0 && board[0] === null) {
-					return 0;
-				} else if (board[7] === 0 && board[2] === null) {
-					return 2;
+				if (lineValues[2] === null) {
+					openSpots.push(winningSets[i][2]);
 				}
 			}
 		}
 
+		// Check to see two possible winning lines for user and block it
+		var last = null;
+		for (i = 0, len = openSpots.length; i < len; i++) {
+			if (last === openSpots[i]) {
+				return openSpots[i];
+			} else {
+				last = openSpots[i];
+			}
+		}
+
+		// When user has marked opposing corners, mark an open edge
+		if ((board[0] === 0 && board[8] === 0) || (board[2] === 0 && board[6] === 0)) {
+			if (board[1] === null) {
+				return 1;
+			} else if (board[3] === null) {
+				return 3;
+			} else if (board[5] === null) {
+				return 5;
+			} else if (board[7] === null) {
+				return 7;
+			}
+		}
+
+		// When user has marked adjacent edges, mark shared corner
+		if (board[1] === 0 && board[5] === 0 && board[2] === null) {
+			return 2;
+		} else if (board[5] === 0 && board[7] === 0 && board[8] === null) {
+			return 8;
+		} else if (board[7] === 0 && board[3] === 0 && board[6] === null) {
+			return 6;
+		} else if (board[3] === 0 && board[1] === 0 && board[0] === null) {
+			return 0;
+		}
+
+		// Check any line where computer has at least one marking and there are two open spots
+		openSpots = [];
+		for (i = 0, len = winningSets.length; i < len; i++) {
+			var lineValues = winningSets[i].map(that.getPositionValue);
+
+			if (_countOccurances(lineValues, 1) === 1 && _countOccurances(lineValues, null) === 2) {
+
+				if (lineValues[0] === null) {
+					openSpots.push(winningSets[i][0]);
+				}
+
+				if (lineValues[1] === null) {
+					openSpots.push(winningSets[i][1]);
+				}
+
+				if (lineValues[2] === null) {
+					openSpots.push(winningSets[i][2]);
+				}
+			}
+		}
+
+		last = null;
+		for (i = 0, len = openSpots.length; i < len; i++) {
+			if (last === openSpots[i]) {
+				return openSpots[i];
+			} else {
+				last = openSpots[i];
+			}
+		}
+
+		// Position doesn't matter at this point, return any open position
 		return position;
 	}
 
 	function _countOccurances (array, element) {
-
 		var o = array.filter(function (e) {
-
-			if (e === element) {
-				return true;
-			} else {
-				return false;
-			}
+			return (e === element);
 		});
 
 		return o.length;
@@ -265,9 +237,8 @@ function TicTacToe(firstPlayer) {
 	function init() {
 		// Computer is going first
 		if (currentPlayerTurn === 1) {
-
-			// Randomly choose one of the corner positions to make it less repetative game sequence 
-			var position = cornerSpot[Math.floor(Math.random() * cornerSpot.length)];
+			var cornerSpot = [0, 2, 6, 8];
+			var position = cornerSpot[Math.floor(Math.random() * cornerSpot.length)]; // Randomly choose a corner spot
 
 			that.setMark(position);
 		}
